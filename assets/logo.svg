@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" role="img" aria-label="ProCAD Automation logo">
+  <!-- 24x24 grid. Stem x=7 (y 3-21). Bowl: H12, semicircle r=5 centred (12,8), back to stem at y=13.
+       Grip: 4x4 square centred on the stem's end vertex (7,21). Stroke 2.5, miter joins, butt caps. -->
+  <path d="M7 21V3H12A5 5 0 0 1 12 13H7" fill="none" stroke="#141414" stroke-width="2.5" stroke-linejoin="miter" stroke-linecap="butt"/>
+  <rect x="5" y="19" width="4" height="4" fill="#FF5A1F"/>
+</svg>

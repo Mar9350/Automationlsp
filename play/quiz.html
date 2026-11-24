@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guess the LISP · ProCAD Automation</title>
+<meta name="color-scheme" content="light dark">
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<link rel="stylesheet" href="mini.css">
+<style>
+  .card { border: 1px solid var(--ink); border-radius: var(--r); background: var(--surface); padding: 24px; display: grid; gap: 18px; }
+  .q-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .q-num { font-size: 14px; font-weight: 700; }
+  .pips { display: flex; gap: 4px; }
+  .pip { width: 14px; height: 6px; border: 1px solid var(--ink); }
+  .pip.ok { background: var(--ok); border-color: var(--ok); }
+  .pip.no { background: var(--red); border-color: var(--red); }
+  .pip.now { background: var(--accent); border-color: var(--accent); }
+  .clues { display: grid; gap: 0; border-top: 1px solid var(--ink); }
+  .clue { display: grid; grid-template-columns: 110px 1fr; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--grey-2); font-size: 18px; line-height: 1.4; }
+  .clue dt { font-size: 12px; font-weight: 700; letter-spacing: var(--track); text-transform: uppercase; color: var(--grey-1); padding-top: 4px; }
+  .mask { display: inline-block; background: var(--ink); color: var(--ink); border-radius: 1px; padding: 0 4px; font-family: var(--mono); font-size: 0.8em; user-select: none; }
+  .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .opt { min-height: 56px; display: grid; grid-template-columns: 26px 1fr; align-items: center; gap: 10px; text-align: left; padding: 8px 14px; border: 1px solid var(--ink); border-radius: var(--r); background: var(--paper); cursor: pointer; font-weight: 700; }
+  .opt:hover:not([disabled]) { background: var(--ink); color: var(--paper); }
+  .opt:hover:not([disabled]) .k { color: var(--accent); }
+  .opt .k { font-family: var(--mono); font-size: 13px; color: var(--grey-1); }
+  .opt code { font-weight: 400; font-size: 13px; color: var(--grey-1); display: block; }
+  .opt:hover:not([disabled]) code { color: inherit; }
+  .opt[disabled] { cursor: default; }
+  .opt.right { border: 2px solid var(--ok); }
+  .opt.wrong { border: 2px solid var(--red); text-decoration: line-through; }
+  .feedback { display: grid; gap: 8px; padding: 14px 16px; border-left: 3px solid var(--ok); background: var(--paper); }
+  .feedback.bad { border-left-color: var(--red); }
+  .feedback h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+  .res-list { border-top: 1px solid var(--ink); }
+  .res-list li { display: grid; grid-template-columns: 32px 1fr auto; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--grey-2); align-items: baseline; }
+  .res-list .n { color: var(--grey-1); font-size: 13px; }
+  .big { font-size: 64px; font-weight: 700; letter-spacing: -0.02em; line-height: 1; }
+  @media (max-width: 640px) {
+    .card { padding: 16px; }
+    .opts { grid-template-columns: 1fr; }
+    .clue { grid-template-columns: 1fr; gap: 2px; font-size: 16px; }
+    .big { font-size: 48px; }
+  }
+</style>
+</head>
+<body>
+<header class="bar">
+  <div class="bar-in">
+    <a class="brand" href="../index.html#play">
+      <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path class="logo-p" d="M7 21V3H12A5 5 0 0 1 12 13H7"/><rect class="logo-g" x="5" y="19" width="4" height="4"/></svg>
+      <span>ProCAD Automation</span>
+    </a>
+    <nav class="bar-links" aria-label="Games">
+      <a href="index.html">3D office</a>
+      <a href="arcade.html">Arcade</a>
+      <a href="quiz.html" aria-current="page">Quiz</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="head">
+    <p class="cap muted">Quiz · the whole toolkit</p>
+    <h1 class="title">Guess the LISP</h1>
+    <p class="lead">Read the problem and pick the tool that solves it. Answer on the first clue for 3 points, or reveal more clues for fewer points.</p>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><span class="cap muted">Question</span><b><span id="s-q">1</span><span class="muted"> / <span id="s-n">10</span></span></b></div>
+    <div class="stat"><span class="cap muted">Score</span><b id="s-score">0</b></div>
+    <div class="stat"><span class="cap muted">Correct</span><b id="s-right">0</b></div>
+    <div class="stat"><span class="cap muted">Worth now</span><b id="s-worth">3</b></div>
+  </div>
+
+  <section class="card" id="quiz" aria-labelledby="q-h">
+    <div class="q-top">
+      <h2 class="q-num" id="q-h">Question 1</h2>
+      <div class="pips" id="pips" aria-hidden="true"></div>
+    </div>
+    <dl class="clues" id="clues" aria-live="polite"></dl>
+    <div class="row">
+      <button type="button" class="btn" id="more">Show another clue (−1 point)</button>
+    </div>
+    <div class="opts" id="opts" role="group" aria-label="Answer options. Press 1 to 4."></div>
+    <div class="feedback" id="fb" hidden role="status" aria-live="polite">
+      <h2 id="fb-h"></h2>
+      <p id="fb-t"></p>
+      <div class="row">
+        <button type="button" class="btn btn-accent" id="next">Next question</button>
+        <a class="btn" id="fb-link" href="../index.html">Read the guide</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" id="result" hidden aria-labelledby="r-h">
+    <p class="cap muted">Result</p>
+    <h2 class="title" style="font-size:36px" id="r-h">Quiz complete.</h2>
+    <p class="big"><span id="r-score">0</span><span class="muted" style="font-size:28px"> / <span id="r-max">30</span></span></p>
+    <p id="r-text"></p>
+    <ol class="res-list" id="r-list"></ol>
+    <div class="row">
+      <button type="button" class="btn btn-accent" id="again">Play again</button>
+      <a class="btn" href="../index.html#downloads">Browse all tools</a>
+    </div>
+  </section>
+</main>
+
+<footer class="foot"><div class="wrap muted">Built by ProCAD Manila · © 2026 ProCAD</div></footer>
+<script src="../script.js"></script>
+<script src="quiz.js"></script>
+</body>
+</html>

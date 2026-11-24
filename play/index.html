@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ProCAD Office · GCDONUT Hunt</title>
+<meta name="color-scheme" content="light dark">
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+  <canvas id="scene" tabindex="0" role="img" aria-label="3D office floor with a conference room, two production pods, a pantry, a focus room, a print corner and reception. Coworkers sit at their workstations and a manager sits at the front of the conference room."></canvas>
+
+  <!-- HUD -->
+  <div class="hud" id="hud" hidden>
+    <div class="hud-tl">
+      <p class="cap" id="h-title">GCDONUT Hunt</p>
+      <p class="count"><span id="found">0</span><span class="of"> / <span id="total">7</span></span></p>
+      <p class="cap muted"><span id="h-unit">Donuts</span> · <span id="timer">00:00</span></p>
+    </div>
+    <div class="hud-tr" id="mapwrap">
+      <canvas id="map" width="200" height="143" role="img" aria-label="Floor plan minimap. Orange arrow is you, orange rings are donuts still to find."></canvas>
+    </div>
+    <p class="hint" id="hint" hidden><kbd>H</kbd> Run HDEL · clear every remaining hatch in one command</p>
+    <p class="prompt" id="prompt" hidden></p>
+    <div class="bubble" id="bubble" hidden></div>
+
+    <aside class="card" id="card" hidden aria-labelledby="c-name">
+      <div class="card-head">
+        <p class="cap card-cat"><span id="c-shape"></span><span id="c-cat"></span></p>
+        <button type="button" class="close" id="c-close" aria-label="Close tool card">
+          <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path d="M2 2l12 12M14 2L2 14" stroke="currentColor" stroke-width="1.5"/></svg>
+        </button>
+      </div>
+      <p class="cap muted" id="c-room"></p>
+      <h2 class="card-name" id="c-name"></h2>
+      <p><code id="c-cmd"></code></p>
+      <p class="card-desc" id="c-desc"></p>
+      <dl class="card-dl">
+        <div><dt class="cap">What it does</dt><dd id="c-action"></dd></div>
+        <div class="why"><dt class="cap">Why it matters</dt><dd id="c-why"></dd></div>
+      </dl>
+    </aside>
+
+    <div class="touch" id="touch" hidden>
+      <div class="stick" aria-hidden="true"><span class="knob" id="knob"></span></div>
+      <div class="tbtns">
+        <button type="button" id="t-h" class="tbtn tbtn-ink" hidden>HDEL</button>
+        <button type="button" id="t-cam" class="tbtn">View</button>
+        <button type="button" id="t-jump" class="tbtn">Jump</button>
+        <button type="button" id="t-e" class="tbtn tbtn-accent">E</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- START -->
+  <section class="panel" id="start" aria-labelledby="start-h">
+    <div class="panel-in">
+      <p class="cap muted"><a class="back" href="../index.html">← ProCAD Automation</a></p>
+      <div class="modes" id="modes" role="group" aria-label="Choose a game">
+        <button type="button" data-mode="donut" aria-pressed="true"><span class="m-n">01</span>GCDONUT Hunt</button>
+        <button type="button" data-mode="gap" aria-pressed="false"><span class="m-n">02</span>Gap Patrol</button>
+        <button type="button" data-mode="hatch" aria-pressed="false"><span class="m-n">03</span>Hatch Sweeper</button>
+      </div>
+      <p class="more cap">More games: <a href="arcade.html">Hatch Invaders (2D arcade)</a> · <a href="quiz.html">Guess the LISP (quiz)</a></p>
+      <h1 id="start-h" class="title"><span id="s-title">GCDONUT Hunt</span></h1>
+      <p class="lead" id="s-intro" aria-live="polite"></p>
+      <dl class="keys">
+        <div><dt>W A S D</dt><dd>Move</dd></div>
+        <div><dt>Mouse</dt><dd>Look</dd></div>
+        <div><dt>Shift</dt><dd>Run</dd></div>
+        <div><dt>Space</dt><dd>Jump</dd></div>
+        <div><dt>E</dt><dd>Interact · talk · sit</dd></div>
+        <div><dt>H</dt><dd>Run HDEL (Hatch Sweeper)</dd></div>
+        <div><dt>V</dt><dd>First / third person</dd></div>
+        <div><dt>M</dt><dd>Minimap</dd></div>
+        <div><dt>Esc</dt><dd>Pause</dd></div>
+      </dl>
+      <button type="button" class="btn btn-accent" id="play">Start</button>
+    </div>
+  </section>
+
+  <!-- PAUSE -->
+  <section class="panel" id="pause" hidden aria-labelledby="pause-h">
+    <div class="panel-in">
+      <h2 id="pause-h" class="title">Paused</h2>
+      <p class="lead">Click Resume, then move the mouse to look around.</p>
+      <div class="row">
+        <button type="button" class="btn btn-accent" id="resume">Resume</button>
+        <button type="button" class="btn" id="pmenu">Choose another game</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- DONE -->
+  <section class="panel" id="done" hidden aria-labelledby="done-h">
+    <div class="panel-in">
+      <h2 id="done-h" class="title"><span id="d-title">All donuts found.</span></h2>
+      <p class="big" id="d-time">00:00</p>
+      <p class="lead" id="d-lead"></p>
+      <div class="row">
+        <button type="button" class="btn btn-accent" id="again">Play again</button>
+        <button type="button" class="btn" id="explore">Keep exploring</button>
+        <button type="button" class="btn" id="menu">Choose another game</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- NO WEBGL -->
+  <section class="panel" id="nogl" hidden aria-labelledby="nogl-h">
+    <div class="panel-in">
+      <h2 id="nogl-h" class="title">3D isn't available here.</h2>
+      <p class="lead">This browser or computer has WebGL turned off. Try the latest Edge or Chrome, or turn on hardware acceleration in the browser settings.</p>
+    </div>
+  </section>
+
+  <p class="sr-only" id="live" aria-live="polite"></p>
+</div>
+<script src="game.js"></script>
+</body>
+</html>

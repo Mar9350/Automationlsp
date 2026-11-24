@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ProCAD Automation</title>
+<meta name="description" content="Every AutoLISP and Python tool built by ProCAD Manila, and why.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- 00 NAVIGATION -->
+<header class="nav" id="top">
+  <div class="wrap nav-in">
+    <a class="brand" href="#top">
+      <svg class="logo" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false" aria-label="ProCAD Automation logo"><path class="logo-p" d="M7 21V3H12A5 5 0 0 1 12 13H7"/><rect class="logo-g" x="5" y="19" width="4" height="4"/></svg>
+      <span>ProCAD Automation</span>
+    </a>
+    <nav aria-label="Primary">
+      <ul class="nav-links">
+        <li><a href="#story">Story</a></li>
+        <li><a href="#toolkit">Toolkit</a></li>
+        <li><a href="#play">Play</a></li>
+        <li><a href="#downloads">Downloads</a></li>
+        <li><a href="#install">Install</a></li>
+      </ul>
+    </nav>
+    <button type="button" class="switch" id="theme-switch" role="switch" aria-checked="false">
+      <span class="switch-l">Dark</span>
+      <span class="switch-track" aria-hidden="true"><span class="switch-knob"></span></span>
+    </button>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- 01 HERO -->
+  <section class="hero" aria-labelledby="hero-h">
+    <div class="wrap grid">
+      <div class="hero-text">
+        <p class="sec-n" aria-hidden="true">01</p>
+        <h1 id="hero-h" class="d1">Every tool we built, and why.</h1>
+        <p class="lead">AutoLISP and Python tools made by ProCAD Manila coordinators, <span id="hero-years"></span>.</p>
+        <div class="actions">
+          <a class="btn btn-accent" href="#toolkit">Explore the toolkit</a>
+          <a class="textlink" href="#story">Read the story</a>
+        </div>
+      </div>
+      <figure class="hero-fig">
+        <svg class="plan" viewBox="0 0 480 360" role="img" aria-label="Floor plan line drawing. Walls draw themselves, then each room fills with one tool category color.">
+          <g class="rooms">
+            <rect class="room seg-red"    x="24"  y="24"  width="160" height="120"/>
+            <rect class="room seg-blue"   x="184" y="24"  width="112" height="120"/>
+            <rect class="room seg-yellow" x="296" y="24"  width="160" height="176"/>
+            <rect class="room seg-ink"    x="24"  y="144" width="96"  height="192"/>
+            <rect class="room seg-grey"   x="120" y="184" width="176" height="152"/>
+            <rect class="room seg-outline-fill" x="296" y="200" width="160" height="136"/>
+            <rect class="room seg-outline-fill" x="120" y="144" width="176" height="40"/>
+          </g>
+          <path class="wall" pathLength="1" d="M24 24H456V336H24Z"/>
+          <path class="wall wall-in" pathLength="1" d="M184 24V144M296 24V336M24 144H296M120 144V336M120 184H296M296 200H456"/>
+          <g class="grips" aria-hidden="true">
+            <rect x="20" y="20" width="8" height="8"/><rect x="452" y="20" width="8" height="8"/>
+            <rect x="452" y="332" width="8" height="8"/><rect x="20" y="332" width="8" height="8"/>
+          </g>
+        </svg>
+        <figcaption><ul class="hero-key" id="legend-hero"></ul></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 02 STORY -->
+  <section id="story" class="story" aria-labelledby="story-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="sec-n" aria-hidden="true">02</p>
+        <h2 id="story-h" class="d2">Story</h2>
+        <p class="sec-sub muted">Select a milestone. Use the arrow keys to move along the axis.</p>
+      </div>
+      <div class="axis" id="axis"></div>
+    </div>
+  </section>
+
+  <!-- 03 TOOLKIT -->
+  <section id="toolkit" class="toolkit" aria-labelledby="toolkit-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="sec-n" aria-hidden="true">03</p>
+        <h2 id="toolkit-h" class="d2">Toolkit</h2>
+      </div>
+
+      <div class="grid kit-a">
+        <div class="kit-label"><h3 class="cap">a — Composition</h3><p class="muted">Tools per category. Each category keeps the same shape and color across the site.</p></div>
+        <div class="kit-body">
+          <div class="comp-bar" id="comp-bar"></div>
+          <table class="comp-table">
+            <caption class="sr-only">Tools per category</caption>
+            <thead><tr><th scope="col" class="num">No.</th><th scope="col"><span class="sr-only">Key</span></th><th scope="col">Category</th><th scope="col" class="num">Tools</th><th scope="col" class="num">Share</th></tr></thead>
+            <tbody id="comp-body"></tbody>
+            <tfoot><tr><td></td><td></td><th scope="row">Total</th><td class="num" id="comp-total"></td><td class="num">100%</td></tr></tfoot>
+          </table>
+        </div>
+      </div>
+
+      <div class="grid kit-b">
+        <div class="kit-label"><h3 class="cap">b — Pipeline</h3><p class="muted">Where each tool sits in a production job. Select a command to open it.</p></div>
+        <div class="kit-body">
+          <ol class="pipe" id="pipe"></ol>
+        </div>
+      </div>
+
+      <div class="grid kit-c">
+        <div class="kit-label"><h3 class="cap">c — LISP vs Python</h3><p class="muted">Square area is proportional to the number of tools.</p></div>
+        <div class="kit-body ratio-wrap">
+          <div class="ratio" id="ratio"></div>
+          <dl class="ratio-key" id="ratio-key"></dl>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 PLAY -->
+  <section id="play" class="play" aria-labelledby="play-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="sec-n" aria-hidden="true">04</p>
+        <h2 id="play-h" class="d2">Play</h2>
+        <p class="sec-sub muted">Three 3D office games, a 2D arcade and a quiz. Each one teaches a tool from the toolkit.</p>
+      </div>
+      <ol class="games">
+        <li class="game">
+          <span class="g-n">01</span>
+          <svg class="mk mk-ink" width="16" height="16" viewBox="0 0 12 12" role="img" aria-label="Mapping and Geometry, ink square"><rect x="1" y="1" width="10" height="10"/></svg>
+          <div class="g-text"><h3>GCDONUT Hunt</h3><p class="muted">Seven rooms, seven donuts at their centroids. Find them all to unlock a tool card for each.</p></div>
+          <code class="g-cmd">GCDONUT</code>
+          <a class="btn btn-accent" href="play/index.html#mode=donut">Play<span class="sr-only"> GCDONUT Hunt</span></a>
+        </li>
+        <li class="game">
+          <span class="g-n">02</span>
+          <svg class="mk mk-yellow" width="16" height="16" viewBox="0 0 12 12" role="img" aria-label="QA and Standards, yellow triangle"><path d="M6 1 11 11H1Z"/></svg>
+          <div class="g-text"><h3>Gap Patrol</h3><p class="muted">Glowing gaps are hiding in the room boundaries. Walk up to each one and run GAPCHECK to seal it.</p></div>
+          <code class="g-cmd">GAPCHECK</code>
+          <a class="btn btn-accent" href="play/index.html#mode=gap">Play<span class="sr-only"> Gap Patrol</span></a>
+        </li>
+        <li class="game">
+          <span class="g-n">03</span>
+          <svg class="mk mk-red" width="16" height="16" viewBox="0 0 12 12" role="img" aria-label="Drawing Cleanup, red circle"><circle cx="6" cy="6" r="5"/></svg>
+          <div class="g-text"><h3>Hatch Sweeper</h3><p class="muted">Clear a few hatches by hand, then run HDEL and clear the rest of the floor in one command.</p></div>
+          <code class="g-cmd">HDEL</code>
+          <a class="btn btn-accent" href="play/index.html#mode=hatch">Play<span class="sr-only"> Hatch Sweeper</span></a>
+        </li>
+        <li class="game">
+          <span class="g-n">04</span>
+          <svg class="mk mk-red" width="16" height="16" viewBox="0 0 12 12" role="img" aria-label="Drawing Cleanup, red circle"><circle cx="6" cy="6" r="5"/></svg>
+          <div class="g-text"><h3>Hatch Invaders <span class="muted">· 2D arcade</span></h3><p class="muted">Shoot down marching hatch blocks. Every 10 hits charges HDEL, which clears the whole screen in one press.</p></div>
+          <code class="g-cmd">HDEL</code>
+          <a class="btn btn-accent" href="play/arcade.html">Play<span class="sr-only"> Hatch Invaders</span></a>
+        </li>
+        <li class="game">
+          <span class="g-n">05</span>
+          <svg class="mk mk-outline" width="16" height="16" viewBox="0 0 12 12" role="img" aria-label="Whole toolkit, outline square"><rect x="1" y="1" width="10" height="10"/></svg>
+          <div class="g-text"><h3>Guess the LISP <span class="muted">· quiz</span></h3><p class="muted">Ten questions drawn from the whole toolkit. Read the problem, pick the tool, and score more for fewer clues.</p></div>
+          <code class="g-cmd">ALL TOOLS</code>
+          <a class="btn btn-accent" href="play/quiz.html">Play<span class="sr-only"> Guess the LISP</span></a>
+        </li>
+      </ol>
+      <p class="note">3D games: W A S D to move, mouse to look, E to interact, Esc to pause. Phones get an on-screen joystick.</p>
+    </div>
+  </section>
+
+  <!-- 05 DOWNLOADS -->
+  <section id="downloads" class="downloads" aria-labelledby="dl-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="sec-n" aria-hidden="true">05</p>
+        <h2 id="dl-h" class="d2">Downloads</h2>
+        <p class="sec-sub muted" id="dl-hint"></p>
+      </div>
+
+      <form class="filters" id="filters" role="search" aria-label="Filter tools">
+        <div class="f-search">
+          <label class="cap" for="q">Search</label>
+          <input id="q" type="search" autocomplete="off" spellcheck="false" placeholder="Name, command or description">
+        </div>
+        <div class="f-type">
+          <span class="cap" id="type-l">Type</span>
+          <div class="seg-ctl" id="type-seg" role="group" aria-labelledby="type-l">
+            <button type="button" data-type="all" aria-pressed="true">All</button>
+            <button type="button" data-type="LSP" aria-pressed="false">LSP</button>
+            <button type="button" data-type="Python" aria-pressed="false">Python</button>
+          </div>
+        </div>
+        <div class="f-sort">
+          <label class="cap" for="sort">Sort</label>
+          <select id="sort"><option value="az">A–Z</option><option value="timeline">Timeline</option></select>
+        </div>
+        <div class="f-cats">
+          <span class="cap" id="cat-l">Category</span>
+          <div class="fchips" id="cat-filters" role="group" aria-labelledby="cat-l"></div>
+        </div>
+      </form>
+
+      <p class="count" id="count" role="status" aria-live="polite"></p>
+      <div class="list-head" id="list-head" aria-hidden="true">
+        <span></span><span>Tool</span><span>What it does</span><span>Type</span><span></span>
+      </div>
+      <ul class="rows" id="rows"></ul>
+
+      <div class="empty" id="empty" hidden>
+        <svg viewBox="0 0 96 64" width="96" height="64" role="img" aria-label="Empty selection window"><rect x="1" y="1" width="94" height="62" fill="none" stroke="currentColor" stroke-dasharray="3 3"/><path d="M40 32h16M48 24v16" stroke="currentColor"/></svg>
+        <div>
+          <h3 class="d4">No tools match.</h3>
+          <p class="muted">Try a command such as <code>HDEL</code> or <code>Q4</code>, or clear the filters.</p>
+          <button type="button" class="btn btn-line" id="reset">Clear filters</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 INSTALL -->
+  <section id="install" class="install" aria-labelledby="install-h">
+    <div class="wrap grid">
+      <div class="install-head">
+        <p class="sec-n" aria-hidden="true">07</p>
+        <h2 id="install-h" class="d2">Install</h2>
+        <p class="muted">Load a LISP routine in AutoCAD, or run a Python tool.</p>
+      </div>
+      <div class="install-body" id="install-tabs">
+        <div class="seg-ctl seg-tabs" role="tablist" aria-label="Install method">
+          <button type="button" role="tab" id="t1" aria-controls="p1" aria-selected="true">Load once (APPLOAD)</button>
+          <button type="button" role="tab" id="t2" aria-controls="p2" aria-selected="false" tabindex="-1">Every drawing (Startup Suite)</button>
+          <button type="button" role="tab" id="t3" aria-controls="p3" aria-selected="false" tabindex="-1">Python tools (.exe, no Python install needed)</button>
+          <button type="button" role="tab" id="t4" aria-controls="p4" aria-selected="false" tabindex="-1">Troubleshooting</button>
+        </div>
+
+        <div role="tabpanel" id="p1" aria-labelledby="t1" tabindex="0" class="panel">
+          <p class="panel-lead">Try a tool in the current drawing.</p>
+          <ol class="steps">
+            <li>Save the .lsp file in a permanent folder, for example <code>C:\ProCAD\LISP</code>.</li>
+            <li>In AutoCAD, type <code>APPLOAD</code> and press Enter.</li>
+            <li>Browse to the folder and select the file.</li>
+            <li>Click Load. If a security warning appears, choose Load Once.</li>
+            <li>Click Close, type the command and press Enter.</li>
+          </ol>
+          <p class="note-rule">The tool stays loaded for this session only. You can also drag the .lsp file into the drawing area.</p>
+        </div>
+
+        <div role="tabpanel" id="p2" aria-labelledby="t2" tabindex="0" class="panel" hidden>
+          <p class="panel-lead">Add the file to the Startup Suite once. AutoCAD loads it every time.</p>
+          <ol class="steps">
+            <li>Type <code>APPLOAD</code> and press Enter.</li>
+            <li>Under Startup Suite, click Contents…</li>
+            <li>Click Add…, select the .lsp file and click Open.</li>
+            <li>Click Close, then Close again.</li>
+            <li>Restart AutoCAD and test the command.</li>
+          </ol>
+          <p class="note-rule">Keep all ProCAD files in one folder. Don't load two versions of the same command, such as <code>BLKCLEAN</code> and <code>BLKCLEAN_v2</code>.</p>
+        </div>
+
+        <div role="tabpanel" id="p3" aria-labelledby="t3" tabindex="0" class="panel" hidden>
+          <p class="panel-lead">The Python tools are packaged as .exe files. Python is not required.</p>
+          <ol class="steps">
+            <li>Copy the .exe to a permanent folder, for example <code>C:\ProCAD\Tools</code>.</li>
+            <li>Double-click it to open the tool.</li>
+            <li>Open the source file: an image for ImageToDXF, a DXF for the others.</li>
+            <li>Choose the settings, run, and save with a new file name.</li>
+            <li>Open the result in AutoCAD and review it.</li>
+          </ol>
+          <p class="note-rule">Close the DXF in AutoCAD before processing. Keep the original. Save outputs with a suffix such as <code>_converted</code> or <code>_translated</code>.</p>
+        </div>
+
+        <div role="tabpanel" id="p4" aria-labelledby="t4" tabindex="0" class="panel" hidden>
+          <dl class="trouble">
+            <div><dt><span class="tn">01</span>Unknown command</dt><dd>Run <code>APPLOAD</code> again, or check the Startup Suite path.</dd></div>
+            <div><dt><span class="tn">02</span>Security warning</dt><dd>Choose Load Once, or add the LISP folder to Trusted Locations.</dd></div>
+            <div><dt><span class="tn">03</span>New version not working</dt><dd>Replace the file, then close and reopen the drawing.</dd></div>
+            <div><dt><span class="tn">04</span>Duplicate command</dt><dd>Remove the older routine from the Startup Suite.</dd></div>
+            <div><dt><span class="tn">05</span>Tool did nothing</dt><dd>Check layers, closed polylines, your selection and the tool's "Before you run" note.</dd></div>
+            <div><dt><span class="tn">06</span>Download opens as text</dt><dd>Right-click Download and choose Save link as.</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <p class="brand brand-foot">
+      <svg class="logo" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false" aria-label="ProCAD Automation logo"><path class="logo-p" d="M7 21V3H12A5 5 0 0 1 12 13H7"/><rect class="logo-g" x="5" y="19" width="4" height="4"/></svg>
+      <span>ProCAD Automation</span>
+    </p>
+    <p class="muted">Built by ProCAD Manila</p>
+    <p class="muted">© 2026 ProCAD</p>
+  </div>
+</footer>
+
+<!-- 06 TOOL SHEET -->
+<div class="scrim" id="scrim" hidden></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="s-title" hidden>
+  <div class="s-head">
+    <div class="s-id">
+      <p class="cap s-cat"><span class="s-sec" aria-hidden="true">06</span><span id="s-mark"></span><span id="s-cat"></span></p>
+      <h2 class="d3" id="s-title"></h2>
+      <p class="s-cmd"><code id="s-cmd"></code></p>
+      <div class="badges" id="s-badges"></div>
+    </div>
+    <button type="button" class="close" id="s-close" aria-label="Close tool details">
+      <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false" aria-label="Close"><path d="M2 2l12 12M14 2L2 14" stroke="currentColor" stroke-width="1.5"/></svg>
+    </button>
+  </div>
+  <div class="s-body" id="s-body">
+    <div class="s-left">
+      <ol class="s-story">
+        <li><span class="s-n">01</span><h3 class="cap">Problem</h3><p id="s-problem"></p></li>
+        <li><span class="s-n">02</span><h3 class="cap">Approach</h3><p id="s-approach"></p></li>
+        <li><span class="s-n">03</span><h3 class="cap">What it does</h3><p id="s-action"></p></li>
+        <li><span class="s-n">04</span><h3 class="cap">Why it matters</h3><p id="s-why"></p></li>
+      </ol>
+    </div>
+    <div class="s-right">
+      <div class="s-media" id="s-media"></div>
+      <h3 class="cap">How to use</h3>
+      <ol class="steps" id="s-steps"></ol>
+      <div class="before">
+        <h3 class="cap">Before you run</h3>
+        <p id="s-before"></p>
+      </div>
+      <p class="s-file"><span class="cap">File</span> <code id="s-file"></code></p>
+      <div id="s-dl"></div>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

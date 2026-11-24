@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hatch Invaders · ProCAD Automation</title>
+<meta name="color-scheme" content="light dark">
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<link rel="stylesheet" href="mini.css">
+<style>
+  .stage { position: relative; border: 1px solid var(--ink); border-radius: var(--r); background: var(--surface); overflow: hidden; }
+  #arena { display: block; width: 100%; aspect-ratio: 10 / 7; touch-action: none; }
+  #arena:focus-visible { outline-offset: -4px; }
+  .meter { display: grid; gap: 4px; }
+  .meter-bar { height: 8px; border: 1px solid var(--ink); position: relative; }
+  .meter-fill { position: absolute; inset: 0 auto 0 0; width: 0; background: var(--grey-1); }
+  .meter.ready .meter-fill { background: var(--accent); }
+  .meter.ready b { color: var(--accent); }
+  .ov { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(20, 20, 20, 0.35); padding: 16px; }
+  .ov-in { width: min(460px, 100%); max-height: 100%; overflow: auto; background: var(--paper); border: 1px solid var(--ink); padding: 22px; display: grid; gap: 12px; }
+  .ov-in h2 { font-size: 30px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.05; }
+  .big { font-size: 48px; font-weight: 700; letter-spacing: -0.02em; line-height: 1; }
+  .keys { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--ink); font-size: 14px; }
+  .keys div { display: grid; grid-template-columns: 86px 1fr; gap: 6px; padding: 6px 0; border-bottom: 1px solid var(--grey-2); }
+  .keys dt { font-family: var(--mono); font-weight: 700; font-size: 13px; }
+  .pad { display: none; grid-template-columns: 1fr 1fr 1.3fr 1fr; gap: 8px; margin-top: 12px; }
+  .pad button { min-height: 56px; border: 1px solid var(--ink); border-radius: var(--r); background: var(--paper); font-weight: 700; font-size: 15px; touch-action: none; user-select: none; -webkit-user-select: none; }
+  .pad .fire { background: var(--accent); border-color: var(--accent); color: #141414; }
+  .pad .hd[disabled] { border-style: dashed; color: var(--grey-1); }
+  .touch .pad { display: grid; }
+  .how { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin-top: 24px; border-top: 1px solid var(--ink); padding-top: 16px; }
+  .how li { display: grid; gap: 4px; font-size: 14px; }
+  .how b { font-size: 12px; letter-spacing: var(--track); text-transform: uppercase; }
+  @media (max-width: 640px) { .how { grid-template-columns: 1fr; gap: 12px; } .keys { grid-template-columns: 1fr; } .ov-in h2 { font-size: 24px; } .big { font-size: 36px; } }
+</style>
+</head>
+<body>
+<header class="bar">
+  <div class="bar-in">
+    <a class="brand" href="../index.html#play">
+      <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path class="logo-p" d="M7 21V3H12A5 5 0 0 1 12 13H7"/><rect class="logo-g" x="5" y="19" width="4" height="4"/></svg>
+      <span>ProCAD Automation</span>
+    </a>
+    <nav class="bar-links" aria-label="Games">
+      <a href="index.html">3D office</a>
+      <a href="arcade.html" aria-current="page">Arcade</a>
+      <a href="quiz.html">Quiz</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="head">
+    <p class="cap muted">2D arcade · HDEL</p>
+    <h1 class="title">Hatch Invaders</h1>
+    <p class="lead">Hatch blocks are marching down the drawing. Shoot them with your crosshair. Every 10 hits charges HDEL, and one press clears every hatch on screen.</p>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><span class="cap muted">Score</span><b id="s-score">0</b></div>
+    <div class="stat"><span class="cap muted">Wave</span><b id="s-wave">1</b></div>
+    <div class="stat"><span class="cap muted">Lives</span><b id="s-lives">3</b></div>
+    <div class="stat meter" id="meter"><span class="cap muted">HDEL</span><b id="s-hdel">0 / 10</b><div class="meter-bar" aria-hidden="true"><div class="meter-fill" id="m-fill"></div></div></div>
+  </div>
+
+  <div class="stage">
+    <canvas id="arena" tabindex="0" role="img" aria-label="Arcade field. Rows of hatch blocks move side to side and down. Your crosshair moves along the bottom and fires upward."></canvas>
+
+    <div class="ov" id="ov-start">
+      <div class="ov-in">
+        <p class="cap muted">ProCAD arcade</p>
+        <h2>Clear the hatches before they reach the bottom.</h2>
+        <dl class="keys">
+          <div><dt>← → / A D</dt><dd>Move</dd></div>
+          <div><dt>Space / ↑</dt><dd>Fire</dd></div>
+          <div><dt>H</dt><dd>Run HDEL (when charged)</dd></div>
+          <div><dt>P / Esc</dt><dd>Pause</dd></div>
+        </dl>
+        <p class="muted" id="best-line"></p>
+        <button type="button" class="btn btn-accent" id="b-start">Start</button>
+      </div>
+    </div>
+    <div class="ov" id="ov-pause" hidden>
+      <div class="ov-in">
+        <h2>Paused</h2>
+        <div class="row"><button type="button" class="btn btn-accent" id="b-resume">Resume</button><button type="button" class="btn" id="b-restart">Restart</button></div>
+      </div>
+    </div>
+    <div class="ov" id="ov-over" hidden>
+      <div class="ov-in" role="dialog" aria-modal="true" aria-labelledby="over-h">
+        <p class="cap muted">Game over</p>
+        <h2 id="over-h">The hatches reached the bottom.</h2>
+        <p class="big" id="o-score">0</p>
+        <p id="o-text"></p>
+        <p class="callout">In AutoCAD, HDEL deletes the hatches inside every block definition in one command, so nobody has to clear them one by one.</p>
+        <div class="row">
+          <button type="button" class="btn btn-accent" id="b-again">Play again</button>
+          <a class="btn" href="../index.html#tool=hdel">Read the HDEL guide</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pad" aria-label="Touch controls">
+    <button type="button" id="t-left" aria-label="Move left">◀</button>
+    <button type="button" id="t-right" aria-label="Move right">▶</button>
+    <button type="button" id="t-fire" class="fire">Fire</button>
+    <button type="button" id="t-hdel" class="hd" disabled>HDEL</button>
+  </div>
+
+  <p class="sr-only" id="live" aria-live="polite"></p>
+
+  <ol class="how">
+    <li><b>01 · Shoot</b><span>Each hit is 10 points. Hatches fire short gaps back at you, so keep moving.</span></li>
+    <li><b>02 · Charge HDEL</b><span>Every 10 hits fills the meter. Press H and every hatch on screen is deleted in one command.</span></li>
+    <li><b>03 · Survive</b><span>Each wave is faster. You lose a life when a gap hits you, and the game ends if hatches reach the bottom.</span></li>
+  </ol>
+</main>
+
+<footer class="foot"><div class="wrap muted">Built by ProCAD Manila · © 2026 ProCAD</div></footer>
+<script src="arcade.js"></script>
+</body>
+</html>
